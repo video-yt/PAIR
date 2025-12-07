@@ -1,23 +1,24 @@
+<!-- File: qr-xproverce.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUEEN ANJU MD | Futuristic QR Scanner</title>
+    <title>XPROVERCE MD | Quantum QR Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Base Styles */
+        /* Quantum Design System */
         :root {
-            --primary: #6e00ff;
-            --primary-dark: #4d00b5;
-            --primary-light: #9e4dff;
-            --secondary: #00f7ff;
-            --dark: #0a0a14;
-            --light: #f0f0ff;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --error: #ff3860;
-            --success: #2ecc71;
+            --quantum-blue: #00e5ff;
+            --neon-purple: #b026ff;
+            --cyber-pink: #ff00c3;
+            --matrix-green: #00ff9d;
+            --void-black: #0a0a0f;
+            --star-white: #f0f8ff;
+            --hologram-blue: rgba(0, 229, 255, 0.3);
+            --hologram-purple: rgba(176, 38, 255, 0.3);
+            --grid-color: rgba(0, 229, 255, 0.1);
+            --glow-intensity: 20px;
         }
         
         * {
@@ -27,495 +28,749 @@
         }
         
         body {
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            background: var(--dark);
-            color: var(--light);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Orbitron', 'Segoe UI', monospace;
+            background: var(--void-black);
+            color: var(--star-white);
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
         }
         
-        /* Background Elements */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, var(--primary) 0%, transparent 70%);
-            opacity: 0.1;
-            animation: rotate 60s linear infinite;
-            z-index: -2;
-        }
-        
-        body::after {
-            content: '';
-            position: absolute;
+        /* Quantum Grid Background */
+        .quantum-grid {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(10, 10, 20, 0.9) 0%, rgba(30, 5, 60, 0.95) 100%);
+            background: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: -3;
+        }
+        
+        /* Animated Nebula Background */
+        .nebula-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300%;
+            height: 300%;
+            background: 
+                radial-gradient(circle at 20% 30%, var(--hologram-purple) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, var(--hologram-blue) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 0, 195, 0.2) 0%, transparent 50%);
+            animation: nebulaFloat 80s ease-in-out infinite alternate;
+            z-index: -2;
+            opacity: 0.6;
+        }
+        
+        /* Binary Rain */
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             z-index: -1;
-        }
-        
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Floating Particles */
-        .particle {
-            position: absolute;
-            background: var(--secondary);
-            border-radius: 50%;
             opacity: 0.3;
-            animation: float linear infinite;
-            z-index: -1;
         }
         
-        @keyframes float {
-            0% { transform: translateY(0) translateX(0); opacity: 0.3; }
-            50% { transform: translateY(-100px) translateX(50px); opacity: 0.6; }
-            100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+        .binary-digit {
+            position: absolute;
+            color: var(--quantum-blue);
+            font-family: monospace;
+            font-size: 14px;
+            animation: fall linear infinite;
+            text-shadow: 0 0 10px var(--quantum-blue);
         }
         
         /* Main Container */
-        .container {
-            width: 100%;
-            max-width: 480px;
+        .portal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 2rem;
+        }
+        
+        /* Quantum Portal Panel */
+        .quantum-portal {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid transparent;
+            border-radius: 30px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 60px rgba(0, 229, 255, 0.3),
+                0 0 100px rgba(176, 38, 255, 0.2),
+                inset 0 0 60px rgba(0, 229, 255, 0.1);
+            animation: portalGlow 4s ease-in-out infinite alternate;
+            transform-style: preserve-3d;
             perspective: 1000px;
         }
         
-        /* Glass Panel */
-        .panel {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            padding: 2.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transform-style: preserve-3d;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-        }
-        
-        .panel::before {
+        .quantum-portal::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                rgba(110, 0, 255, 0.1) 0%,
-                rgba(0, 247, 255, 0.05) 50%,
-                rgba(110, 0, 255, 0.1) 100%
-            );
-            transform: rotate(30deg);
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                var(--quantum-blue), 
+                var(--neon-purple), 
+                var(--cyber-pink),
+                var(--matrix-green),
+                var(--quantum-blue));
+            border-radius: 32px;
             z-index: -1;
+            animation: borderRotate 6s linear infinite;
+            filter: blur(10px);
+            opacity: 0.7;
         }
         
-        .panel:hover {
-            transform: translateY(-5px) rotateX(5deg);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        .quantum-portal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, 
+                transparent 30%, 
+                rgba(0, 229, 255, 0.1) 70%);
+            border-radius: 28px;
+            animation: ripple 8s ease-in-out infinite;
         }
         
         /* Header */
-        .header {
+        .portal-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
             position: relative;
         }
         
-        .header h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        .portal-header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, 
+                var(--quantum-blue) 0%, 
+                var(--matrix-green) 25%,
+                var(--cyber-pink) 50%,
+                var(--neon-purple) 75%,
+                var(--quantum-blue) 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease-in-out infinite alternate;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 
+                0 0 30px rgba(0, 229, 255, 0.5),
+                0 0 60px rgba(176, 38, 255, 0.3);
+        }
+        
+        .portal-header h1 span {
+            font-size: 1.5rem;
+            font-weight: 300;
+            background: linear-gradient(90deg, var(--matrix-green), var(--quantum-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: block;
+            margin-top: 0.5rem;
+        }
+        
+        /* QR Portal */
+        .qr-portal {
             position: relative;
-            display: inline-block;
-        }
-        
-        .header h1::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 3px;
-        }
-        
-        .header p {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 1rem;
-        }
-        
-        /* QR Code Container */
-        .qr-container {
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            margin-bottom: 1.5rem;
-            position: relative;
+            margin: 3rem auto;
+            width: 280px;
+            height: 280px;
+            border-radius: 25px;
             overflow: hidden;
+            background: rgba(0, 0, 0, 0.4);
+            border: 3px solid rgba(0, 229, 255, 0.3);
+            box-shadow: 
+                0 0 40px rgba(0, 229, 255, 0.3),
+                inset 0 0 40px rgba(0, 229, 255, 0.1);
+            animation: portalPulse 3s ease-in-out infinite;
         }
         
-        .qr-container::after {
+        .qr-portal::before {
             content: '';
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                transparent 45%,
-                rgba(255, 255, 255, 0.1) 50%,
-                transparent 55%
-            );
-            transform: rotate(30deg);
-            animation: hologram 3s linear infinite;
-            z-index: 0;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(0, 229, 255, 0.1) 50%, 
+                transparent 70%);
+            animation: scanBeam 4s linear infinite;
+            z-index: 1;
         }
         
         .qr-image {
             width: 100%;
-            max-width: 300px;
-            height: auto;
-            border-radius: 8px;
+            height: 100%;
+            object-fit: cover;
             position: relative;
-            z-index: 1;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+            filter: hue-rotate(0deg);
+            animation: hueRotate 10s linear infinite;
         }
         
-        /* Progress Bar */
-        .progress-container {
+        /* Quantum Scanner */
+        .scanner {
+            position: absolute;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            margin: 1.5rem 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--matrix-green), 
+                var(--quantum-blue),
+                var(--matrix-green),
+                transparent);
+            animation: scannerMove 2s linear infinite;
+            z-index: 3;
+            box-shadow: 0 0 20px var(--matrix-green);
         }
         
-        progress {
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: rgba(0, 0, 0, 0.2);
-            border: none;
+        /* Connection Status */
+        .connection-status {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+        
+        .status-node {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
             overflow: hidden;
         }
         
-        progress::-webkit-progress-bar {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
+        .status-node.active {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 25px rgba(0, 255, 157, 0.3);
         }
         
-        progress::-webkit-progress-value {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 4px;
-            transition: width 1s linear;
+        .status-node i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--quantum-blue);
         }
         
-        progress::-moz-progress-bar {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 4px;
+        .status-node.active i {
+            color: var(--matrix-green);
+            animation: iconPulse 1s ease-in-out infinite;
         }
         
-        .time-remaining {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        /* Status Message */
-        .status-message {
-            margin: 1rem 0;
-            padding: 0.8rem;
-            border-radius: 8px;
+        .status-text {
             font-size: 0.9rem;
+            color: rgba(240, 248, 255, 0.8);
+        }
+        
+        .status-node.active .status-text {
+            color: var(--matrix-green);
+        }
+        
+        /* Quantum Progress */
+        .quantum-progress {
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .progress-ring {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .ring-bg, .ring-fill {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .ring-bg {
+            stroke: rgba(0, 229, 255, 0.1);
+        }
+        
+        .ring-fill {
+            stroke: url(#gradient);
+            stroke-dasharray: 565.48;
+            stroke-dashoffset: 565.48;
+            animation: ringFill 30s linear forwards;
+        }
+        
+        .time-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--quantum-blue), var(--matrix-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+        }
+        
+        /* Control Panel */
+        .control-panel {
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 2rem;
+            margin-top: 2.5rem;
         }
         
-        .status-message.scanning {
-            background: rgba(0, 247, 255, 0.1);
-            border: 1px solid var(--secondary);
-            color: var(--secondary);
-        }
-        
-        .status-message.expired {
-            background: rgba(255, 56, 96, 0.1);
-            border: 1px solid var(--error);
-            color: var(--error);
-            display: none;
-        }
-        
-        .status-message.success {
-            background: rgba(46, 204, 113, 0.1);
-            border: 1px solid var(--success);
-            color: var(--success);
-            display: none;
-        }
-        
-        /* Reload Button */
-        .reload-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+        .quantum-btn {
+            padding: 1rem 2rem;
             border: none;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            border-radius: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(110, 0, 255, 0.3);
-            text-decoration: none;
-            margin-top: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--quantum-blue);
+            border: 2px solid var(--quantum-blue);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
         }
         
-        .reload-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(110, 0, 255, 0.4);
+        .quantum-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.6);
+            color: var(--matrix-green);
+            border-color: var(--matrix-green);
         }
         
-        .reload-button:active {
-            transform: translateY(0);
-        }
-        
-        .reload-button::before {
+        .quantum-btn::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 229, 255, 0.2), 
+                transparent);
             transition: 0.5s;
         }
         
-        .reload-button:hover::before {
+        .quantum-btn:hover::before {
             left: 100%;
         }
         
-        /* Holographic Animation */
-        @keyframes hologram {
-            0% { transform: translateY(-100%) rotate(30deg); }
-            100% { transform: translateY(100%) rotate(30deg); }
+        /* Terminal Output */
+        .terminal-output {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            height: 120px;
+            overflow-y: auto;
         }
         
-        /* Glow Animation */
-        .glow {
-            animation: glow-pulse 2s infinite alternate;
+        .terminal-line {
+            color: var(--matrix-green);
+            margin-bottom: 0.5rem;
+            animation: typewriter 0.5s steps(40) forwards;
+            opacity: 0;
         }
         
-        @keyframes glow-pulse {
-            from { text-shadow: 0 0 10px var(--primary-light), 0 0 20px var(--primary-light); }
-            to { text-shadow: 0 0 15px var(--primary-light), 0 0 30px var(--primary-light), 0 0 40px var(--primary); }
+        .terminal-line:nth-child(1) { animation-delay: 0.5s; }
+        .terminal-line:nth-child(2) { animation-delay: 1s; }
+        .terminal-line:nth-child(3) { animation-delay: 1.5s; }
+        .terminal-line:nth-child(4) { animation-delay: 2s; }
+        
+        /* Animations */
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
         
-        /* Responsive Adjustments */
-        @media (max-width: 480px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .panel {
-                padding: 1.5rem;
-            }
-            
-            .header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .qr-image {
-                max-width: 250px;
-            }
+        @keyframes nebulaFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-100px, -100px) scale(1.2); }
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        
+        @keyframes portalGlow {
+            0% { box-shadow: 
+                    0 0 60px rgba(0, 229, 255, 0.3),
+                    0 0 100px rgba(176, 38, 255, 0.2),
+                    inset 0 0 60px rgba(0, 229, 255, 0.1); }
+            100% { box-shadow: 
+                    0 0 80px rgba(0, 229, 255, 0.5),
+                    0 0 120px rgba(176, 38, 255, 0.3),
+                    inset 0 0 80px rgba(0, 229, 255, 0.2); }
+        }
+        
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes ripple {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        @keyframes portalPulse {
+            0%, 100% { transform: scale(1); box-shadow: 
+                0 0 40px rgba(0, 229, 255, 0.3),
+                inset 0 0 40px rgba(0, 229, 255, 0.1); }
+            50% { transform: scale(1.02); box-shadow: 
+                0 0 60px rgba(0, 229, 255, 0.5),
+                inset 0 0 60px rgba(0, 229, 255, 0.2); }
+        }
+        
+        @keyframes scanBeam {
+            0% { transform: translateY(-100%) rotate(45deg); }
+            100% { transform: translateY(100%) rotate(45deg); }
+        }
+        
+        @keyframes scannerMove {
+            0% { transform: translateY(-280px); }
+            100% { transform: translateY(280px); }
+        }
+        
+        @keyframes hueRotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes ringFill {
+            to { stroke-dashoffset: 0; }
+        }
+        
+        @keyframes typewriter {
+            from { width: 0; opacity: 1; }
+            to { width: 100%; opacity: 1; }
+        }
+        
+        /* Quantum Particles */
+        .particle-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .quantum-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--quantum-blue);
+            border-radius: 50%;
+            animation: particleFloat 20s infinite linear;
+            box-shadow: 0 0 10px var(--quantum-blue);
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translate(0, 0) scale(1); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(var(--tx, 100px), var(--ty, -100px)) scale(0); opacity: 0; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .portal-header h1 { font-size: 2.2rem; }
+            .portal-header h1 span { font-size: 1.2rem; }
+            .qr-portal { width: 240px; height: 240px; }
+            .progress-ring { width: 160px; height: 160px; }
+            .connection-status { grid-template-columns: 1fr; }
+            .control-panel { flex-direction: column; gap: 1rem; }
+            .quantum-portal { padding: 2rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="panel">
-            <div class="header">
-                <h1 class="glow">QUEEN ANJU MD</h1>
-                <p>Scan QR Code to connect WhatsApp</p>
+    <!-- Background Elements -->
+    <div class="quantum-grid"></div>
+    <div class="nebula-bg"></div>
+    <div class="binary-rain" id="binaryRain"></div>
+    <div class="particle-field" id="particleField"></div>
+    
+    <!-- Main Portal -->
+    <div class="portal-container">
+        <div class="quantum-portal">
+            <div class="portal-header">
+                <h1>XPROVERCE<span>QUANTUM QR PORTAL</span></h1>
             </div>
             
-            <div class="qr-container">
-                <img id="qr-image" class="qr-image" src="/server" alt="WhatsApp QR Code">
+            <!-- QR Portal -->
+            <div class="qr-portal">
+                <img id="qrImage" class="qr-image" src="/server" alt="Quantum QR Code">
+                <div class="scanner"></div>
             </div>
             
-            <div class="status-message scanning">
-                <i class="fas fa-qrcode"></i>
-                <span>Scan the QR code with your WhatsApp mobile app</span>
-            </div>
-            
-            <div class="status-message expired">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>QR Code expired! Please reload</span>
-            </div>
-            
-            <div class="status-message success">
-                <i class="fas fa-check-circle"></i>
-                <span>Successfully connected!</span>
-            </div>
-            
-            <div class="progress-container">
-                <progress id="progressBar" value="30" max="30"></progress>
-                <div class="time-remaining">
-                    <span>Time remaining:</span>
-                    <span id="time-count">30s</span>
+            <!-- Connection Status -->
+            <div class="connection-status">
+                <div class="status-node active" id="node1">
+                    <i class="fas fa-satellite"></i>
+                    <div class="status-text">QUANTUM LINK ACTIVE</div>
+                </div>
+                <div class="status-node" id="node2">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <div class="status-text">AWAITING SCAN</div>
+                </div>
+                <div class="status-node" id="node3">
+                    <i class="fas fa-user-astronaut"></i>
+                    <div class="status-text">SYNC PENDING</div>
                 </div>
             </div>
             
-            <a href="javascript:history.go(0)" class="reload-button">
-                <i class="fas fa-sync-alt"></i>
-                <span>Reload QR Code</span>
-            </a>
+            <!-- Quantum Progress Ring -->
+            <div class="quantum-progress">
+                <svg class="progress-ring" viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00e5ff" />
+                            <stop offset="50%" stop-color="#b026ff" />
+                            <stop offset="100%" stop-color="#00ff9d" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="ring-bg" cx="100" cy="100" r="90" />
+                    <circle class="ring-fill" cx="100" cy="100" r="90" />
+                </svg>
+                <div class="time-display" id="timeDisplay">30s</div>
+            </div>
+            
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <button class="quantum-btn" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> REGENERATE
+                </button>
+                <button class="quantum-btn" id="statusBtn">
+                    <i class="fas fa-chart-network"></i> STATUS
+                </button>
+                <button class="quantum-btn" id="helpBtn">
+                    <i class="fas fa-quantum-computer"></i> HELP
+                </button>
+            </div>
+            
+            <!-- Terminal Output -->
+            <div class="terminal-output" id="terminal">
+                <div class="terminal-line">$> INITIALIZING QUANTUM LINK...</div>
+                <div class="terminal-line">$> GENERATING ENTANGLEMENT KEY...</div>
+                <div class="terminal-line">$> QR PORTAL ACTIVE - AWAITING SCAN</div>
+                <div class="terminal-line">$> SECURE CONNECTION ESTABLISHED</div>
+            </div>
         </div>
     </div>
 
+    <!-- SVG for additional effects -->
+    <svg style="display: none;">
+        <defs>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
+
     <script>
-        // Create floating particles
-        function createParticles() {
-            const particles = 15;
-            for (let i = 0; i < particles; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                
-                // Random size between 2px and 6px
-                const size = Math.random() * 4 + 2;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                // Random position
-                particle.style.left = `${Math.random() * 100}vw`;
-                particle.style.top = `${Math.random() * 100}vh`;
-                
-                // Random animation duration
-                const duration = Math.random() * 20 + 10;
-                particle.style.animationDuration = `${duration}s`;
-                
-                // Random delay
-                particle.style.animationDelay = `${Math.random() * 5}s`;
-                
-                document.body.appendChild(particle);
+        // Initialize quantum effects
+        function initQuantumEffects() {
+            createBinaryRain();
+            createParticleField();
+            startConnectionAnimation();
+        }
+        
+        // Create binary rain effect
+        function createBinaryRain() {
+            const container = document.getElementById('binaryRain');
+            for (let i = 0; i < 50; i++) {
+                const digit = document.createElement('div');
+                digit.className = 'binary-digit';
+                digit.textContent = Math.random() > 0.5 ? '1' : '0';
+                digit.style.left = `${Math.random() * 100}%`;
+                digit.style.animationDuration = `${Math.random() * 10 + 5}s`;
+                digit.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(digit);
             }
         }
         
-        // Initialize elements
-        const progressBar = document.getElementById('progressBar');
-        const timeCount = document.getElementById('time-count');
-        const scanningMessage = document.querySelector('.status-message.scanning');
-        const expiredMessage = document.querySelector('.status-message.expired');
-        const successMessage = document.querySelector('.status-message.success');
+        // Create quantum particle field
+        function createParticleField() {
+            const field = document.getElementById('particleField');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'quantum-particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.setProperty('--tx', `${Math.random() * 200 - 100}px`);
+                particle.style.setProperty('--ty', `${Math.random() * 200 - 100}px`);
+                particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                field.appendChild(particle);
+            }
+        }
         
-        // Create particles on load
-        window.addEventListener('load', createParticles);
-        
-        // Timer functionality
-        let timeleft = 30;
-        let timerInterval;
-        
-        function startTimer() {
-            clearInterval(timerInterval);
-            timeleft = 30;
-            progressBar.value = 30;
-            timeCount.textContent = '30s';
-            scanningMessage.style.display = 'flex';
-            expiredMessage.style.display = 'none';
-            successMessage.style.display = 'none';
+        // Start connection animation sequence
+        function startConnectionAnimation() {
+            const nodes = document.querySelectorAll('.status-node');
+            let current = 0;
             
-            timerInterval = setInterval(function() {
-                timeleft--;
-                progressBar.value = timeleft;
-                timeCount.textContent = `${timeleft}s`;
+            const sequence = setInterval(() => {
+                nodes.forEach(node => node.classList.remove('active'));
+                nodes[current].classList.add('active');
                 
-                if (timeleft <= 10) {
-                    progressBar.classList.add('warning');
+                if (current === 2) {
+                    // Simulate successful connection
+                    setTimeout(() => {
+                        document.querySelector('.terminal-output').innerHTML += 
+                            '<div class="terminal-line">$> QUANTUM LINK ESTABLISHED ✓</div>' +
+                            '<div class="terminal-line">$> WELCOME TO XPROVERCE MD</div>';
+                    }, 1000);
+                    clearInterval(sequence);
                 }
                 
-                if (timeleft <= 0) {
+                current = (current + 1) % 3;
+            }, 2000);
+        }
+        
+        // Timer functionality
+        let timeLeft = 30;
+        const timeDisplay = document.getElementById('timeDisplay');
+        const ringFill = document.querySelector('.ring-fill');
+        
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = `${timeLeft}s`;
+                
+                // Calculate ring progress
+                const circumference = 2 * Math.PI * 90;
+                const offset = circumference - (timeLeft / 30) * circumference;
+                ringFill.style.strokeDashoffset = offset;
+                
+                if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    scanningMessage.style.display = 'none';
-                    expiredMessage.style.display = 'flex';
+                    timeDisplay.textContent = 'EXPIRED';
+                    timeDisplay.style.color = '#ff3860';
                     
-                    // Add shake animation
-                    document.querySelector('.qr-container').style.animation = 'shake 0.5s';
-                    setTimeout(() => {
-                        document.querySelector('.qr-container').style.animation = '';
-                    }, 500);
+                    // Show expiration effects
+                    const qrPortal = document.querySelector('.qr-portal');
+                    qrPortal.style.animation = 'shake 0.5s';
+                    qrPortal.style.borderColor = '#ff3860';
+                    
+                    document.querySelector('.terminal-output').innerHTML += 
+                        '<div class="terminal-line" style="color:#ff3860">$> QUANTUM LINK EXPIRED</div>';
                 }
             }, 1000);
         }
         
-        // Start timer on load
-        startTimer();
+        // Button interactions
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> REGENERATING...';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-sync-alt"></i> REGENERATE';
+                timeLeft = 30;
+                timeDisplay.textContent = '30s';
+                timeDisplay.style.color = '';
+                ringFill.style.strokeDashoffset = '565.48';
+                document.querySelector('.qr-portal').style.borderColor = 'rgba(0, 229, 255, 0.3)';
+                document.querySelector('.qr-portal').style.animation = '';
+                startTimer();
+            }, 1000);
+        });
         
-        // Simulate successful connection (for demo purposes)
-        // In a real implementation, this would be triggered by a WebSocket or API response
-        function simulateSuccess() {
-            clearInterval(timerInterval);
-            scanningMessage.style.display = 'none';
-            expiredMessage.style.display = 'none';
-            successMessage.style.display = 'flex';
-            
-            // Add pulse animation to success message
-            successMessage.style.animation = 'pulse 2s infinite';
-        }
+        document.getElementById('statusBtn').addEventListener('click', function() {
+            const terminal = document.querySelector('.terminal-output');
+            terminal.innerHTML += 
+                '<div class="terminal-line">$> SYSTEM STATUS: OPTIMAL</div>' +
+                '<div class="terminal-line">$> CONNECTIONS: 247 ACTIVE</div>' +
+                '<div class="terminal-line">$> QUANTUM STABILITY: 99.9%</div>';
+            terminal.scrollTop = terminal.scrollHeight;
+        });
         
-        // Add shake animation dynamically
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                20%, 60% { transform: translateX(-5px); }
-                40%, 80% { transform: translateX(5px); }
-            }
-            
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.02); }
-                100% { transform: scale(1); }
-            }
-            
-            progress.warning::-webkit-progress-value {
-                background: linear-gradient(90deg, var(--primary), var(--error));
-            }
-            
-            progress.warning::-moz-progress-bar {
-                background: linear-gradient(90deg, var(--primary), var(--error));
-            }
-        `;
-        document.head.appendChild(style);
+        document.getElementById('helpBtn').addEventListener('click', function() {
+            const terminal = document.querySelector('.terminal-output');
+            terminal.innerHTML += 
+                '<div class="terminal-line">$> HELP: SCAN QR WITH WHATSAPP MOBILE</div>' +
+                '<div class="terminal-line">$> ENSURE INTERNET CONNECTION IS ACTIVE</div>' +
+                '<div class="terminal-line">$> FOR SUPPORT: @XPROVERCE_MD</div>';
+            terminal.scrollTop = terminal.scrollHeight;
+        });
         
-        // For demo purposes - simulate success after 15 seconds
-        // setTimeout(simulateSuccess, 15000);
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initQuantumEffects();
+            startTimer();
+            
+            // Add shake animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    20%, 60% { transform: translateX(-10px); }
+                    40%, 80% { transform: translateX(10px); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
     </script>
 </body>
 </html>

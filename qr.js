@@ -4,15 +4,20 @@ const QRCode = require('qrcode');
 const fs = require('fs');
 let router = express.Router();
 const pino = require("pino");
+
 const {
     default: makeWASocket,
     useMultiFileAuthState,
     delay,
-    makeCacheableSignalKeyStore,
-    Browsers,
-    jidNormalizedUser
+    Browsers
 } = require("@whiskeysockets/baileys");
+
 const axios = require('axios');
+
+// ===============================
+// 🔥 ADD YOUR PASTEBIN KEY
+// ===============================
+const PASTEBIN_KEY = "VEYAMdlGHvjIMrxk025_M29ZeE5bLFFv";
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
@@ -21,152 +26,141 @@ function removeFile(FilePath) {
 
 router.get('/', async (req, res) => {
     const id = makeid();
-    
+
     async function GIFTED_MD_PAIR_CODE() {
-        const {
-            state,
-            saveCreds
-        } = await useMultiFileAuthState('./temp/' + id);
+        const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
+
         try {
-            var items = ["Safari"];
-            function selectRandomItem(array) {
-                var randomIndex = Math.floor(Math.random() * array.length);
-                return array[randomIndex];
-            }
-            var randomItem = selectRandomItem(items);
-            
             let sock = makeWASocket({
                 auth: state,
                 printQRInTerminal: false,
-                logger: pino({
-                    level: "silent"
-                }),
+                logger: pino({ level: "silent" }),
                 browser: Browsers.macOS("Desktop"),
             });
-            
+
             sock.ev.on('creds.update', saveCreds);
-            sock.ev.on("connection.update", async (s) => {
-                const {
-                    connection,
-                    lastDisconnect,
-                    qr
-                } = s;
-                if (qr) await res.end(await QRCode.toBuffer(qr));
-                if (connection == "open") {
-                    await delay(5000);
-                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
-                    let rf = __dirname + `/temp/${id}/creds.json`;
-                    
-                    function generateRandomText() {
-                        const prefix = "3EB";
-                        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                        let randomText = prefix;
-                        for (let i = prefix.length; i < 22; i++) {
-                            const randomIndex = Math.floor(Math.random() * characters.length);
-                            randomText += characters.charAt(randomIndex);
-                        }
-                        return randomText;
-                    }
-                    
-                    const randomText = generateRandomText();
+
+            sock.ev.on("connection.update", async (update) => {
+                const { connection, lastDisconnect, qr } = update;
+
+                // SEND QR
+                if (qr) {
+                    const qrImage = await QRCode.toBuffer(qr);
+                    return res.end(qrImage);
+                }
+
+                // WHEN CONNECTED
+                if (connection === "open") {
+                    await delay(3000);
+
+                    const credsPath = `./temp/${id}/creds.json`;
+
+                    if (!fs.existsSync(credsPath)) return;
+
+                    const sessionData = fs.readFileSync(credsPath, "utf8");
+
+                    // =====================================
+                    // 🔥 FIXED — CORRECT PASTEBIN REQUEST
+                    // =====================================
+                    const form = new URLSearchParams();
+                    form.append("api_dev_key", PASTEBIN_KEY);
+                    form.append("api_option", "paste");
+                    form.append("api_paste_code", sessionData);
+                    form.append("api_paste_private", "0"); // unlisted
+                    form.append("api_paste_format", "json");
+
+                    let pasteUrl;
+
                     try {
-                        const base64Session = Buffer.from(data.toString()).toString('base64');
-                        let md = "ANJU-XPRO~" + base64Session;
-                        let code = await sock.sendMessage(sock.user.id, { text: md });
-                        
-                        let cap = `
-🔐 *𝙳𝙾 𝙽𝙾𝚃 �𝚂𝙷𝙰𝚁𝙴 𝚃𝙷𝙸𝚂 𝙲𝙾𝙳𝙴 𝚆𝙸𝚃𝙷 �𝙽𝚈𝙾𝙽𝙴!!*
+                        const response = await axios.post(
+                            "https://pastebin.com/api/api_post.php",
+                            form.toString(),
+                            {
+                                headers: {
+                                    "Content-Type": "application/x-www-form-urlencoded"
+                                }
+                            }
+                        );
 
-Use this code to create your own *𝚀𝚄𝙴𝙴𝙽 𝙰𝙽𝙹𝚄 𝚇𝙿𝚁𝙾* WhatsApp User Bot. 🤖
-
-📂 *WEBSITE:*  
-👉 https://xpro-botz-ofc.vercel.app/
-
-🛠️ *To add your SESSION_ID:*  
-1. Open the \`session.js\` file in the repo.  
-2. Paste your session like this:  
-\`\`\`js
-module.exports = {
-  SESSION_ID: 'PASTE_YOUR_SESSION_ID_HERE'
-}
-\`\`\`  
-3. Save the file and run the bot. ✅
-
-⚠️ *NEVER SHARE YOUR SESSION ID WITH ANYONE!*
-`;
-                    await sock.sendMessage(sock.user.id, {
-                        text: cap,
-                        contextInfo: {
-                            externalAdReply: {
-                                title: "QUEEN ANJU XPRO",
-                                thumbnailUrl: "https://telegra.ph/file/adc46970456c26cad0c15.jpg",
-                                sourceUrl: "https://whatsapp.com/channel/0029Vaj5XmgFXUubAjlU5642",
-                                mediaType: 2,
-                                renderLargerThumbnail: true,
-                                showAdAttribution: true,
-                            },
-                        },
-                    }, { quoted: code });
-                    } catch (e) {
-                        let ddd = await sock.sendMessage(sock.user.id, { text: e.toString() });
-                       let cap = `
-🔐 *𝙳𝙾 𝙽𝙾𝚃 𝚂𝙷𝙰𝚁𝙴 �𝚃𝙷𝙸𝚂 𝙲𝙾𝙳𝙴 𝚆𝙸𝚃𝙷 𝙰𝙽𝚈𝙾𝙽𝙴!!*
-
-Use this code to create your own *𝚀𝚄𝙴𝙴𝙽 𝙰𝙽𝙹𝚄 𝚇𝙿𝚁𝙾* WhatsApp User Bot. 🤖
-
-📂 *WEBSITE:*  
-👉 https://xpro-botz-ofc.vercel.app/
-
-🛠️ *To add your SESSION_ID:*  
-1. Open the \`session.js\` file in the repo.  
-2. Paste your session like this:  
-\`\`\`js
-module.exports = {
-  SESSION_ID: 'PASTE_YOUR_SESSION_ID_HERE'
-}
-\`\`\`  
-3. Save the file and run the bot. ✅
-
-⚠️ *NEVER SHARE YOUR SESSION ID WITH ANYONE!*
-`;
-                    await sock.sendMessage(sock.user.id, {
-                        text: cap,
-                        contextInfo: {
-                            externalAdReply: {
-                                title: "QUEEN ANJU XPRO",
-                                thumbnailUrl: "https://telegra.ph/file/adc46970456c26cad0c15.jpg",
-                                sourceUrl: "https://whatsapp.com/channel/0029Vaj5XmgFXUubAjlU5642",
-                                mediaType: 2,
-                                renderLargerThumbnail: true,
-                                showAdAttribution: true,
-                            },
-                        },
-                    }, { quoted: ddd });
+                        pasteUrl = response.data; // example: https://pastebin.com/Abcde123
+                    } catch (err) {
+                        console.log(err.response?.data || err.message);
+                        await sock.sendMessage(sock.user.id, { text: "❗ Pastebin upload failed!" });
+                        return;
                     }
-                    await delay(10);
+
+                    const pasteId = pasteUrl.split("/").pop();
+
+                    // SEND SESSION ID TO USER
+                    const msg = await sock.sendMessage(sock.user.id, {
+                        text: `*YOUR SESSION ID*\n\n\`\`\`XPRO~${pasteId}\`\`\`\n\n⚠️ Keep it private!`
+                    });
+
+                    const caption = `
+🔐 *NEVER SHARE THIS SESSION ID!*
+
+Use this *SESSION_ID* to run your *QUEEN ANJU XPRO BOT*.
+
+\`\`\`js
+module.exports = {
+  SESSION_ID: 'XPRO~${pasteId}'
+}
+\`\`\`
+
+⚠️ Treat this like a password!
+`;
+
+                    await sock.sendMessage(
+                        sock.user.id,
+                        {
+                            text: caption,
+                            contextInfo: {
+                                externalAdReply: {
+                                    title: "QUEEN ANJU XPRO",
+                                    thumbnailUrl: "https://telegra.ph/file/adc46970456c26cad0c15.jpg",
+                                    sourceUrl: "https://whatsapp.com/channel/0029Vaj5XmgFXUubAjlU5642",
+                                    mediaType: 2,
+                                    renderLargerThumbnail: true,
+                                    showAdAttribution: true
+                                }
+                            }
+                        },
+                        { quoted: msg }
+                    );
+
+                    // CLEANUP
+                    await delay(500);
                     await sock.ws.close();
-                    await removeFile('./temp/' + id);
-                    console.log(`👤 ${sock.user.id} 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱 ✅ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...`);
-                    await delay(10);
-                    process.exit();
-                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
-                    await delay(10);
+                    removeFile('./temp/' + id);
+
+                    console.log(`✔ ${sock.user.id} Connected — Session Saved: ${pasteId}`);
+                    process.exit(0);
+                }
+
+                // RETRY
+                else if (connection === "close" &&
+                    lastDisconnect?.error?.output?.statusCode !== 401) {
+                    await delay(1500);
                     GIFTED_MD_PAIR_CODE();
                 }
             });
+
         } catch (err) {
-            console.log("service restarted", err);
-            await removeFile('./temp/' + id);
+            console.log("Service restart:", err);
+            removeFile('./temp/' + id);
+
             if (!res.headersSent) {
-                await res.send({ code: "❗ Service Unavailable" });
+                res.send({ code: "❗ Service Unavailable" });
             }
         }
     }
+
     await GIFTED_MD_PAIR_CODE();
 });
 
+// AUTO RESTART
 setInterval(() => {
-    console.log("☘️ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...");
+    console.log("♻ Restarting process...");
     process.exit();
 }, 180000);
 
