@@ -17,7 +17,7 @@ const axios = require('axios');
 // ===============================
 // 🔥 ADD YOUR PASTEBIN KEY
 // ===============================
-const PASTEBIN_KEY = "4t3wApHnExGBmHz7QyZt6UUALcAsTrCo";
+const PASTEBIN_KEY = "oF2iYrKuHfvnxEm7npSZTy4hVGNF5i0m";
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
