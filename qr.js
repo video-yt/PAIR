@@ -17,7 +17,7 @@ const axios = require('axios');
 // ===============================
 // 🔥 ADD YOUR PASTEBIN KEY
 // ===============================
-const PASTEBIN_KEY = "VEYAMdlGHvjIMrxk025_M29ZeE5bLFFv";
+const PASTEBIN_KEY = "4t3wApHnExGBmHz7QyZt6UUALcAsTrCo";
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
@@ -82,24 +82,25 @@ router.get('/', async (req, res) => {
                             }
                         );
 
-                        pasteUrl = response.data; // example: https://pastebin.com/Abcde123
+                        pasteUrl = response.data;
+                        console.log(response) // example: https://pastebin.com/Abcde123
                     } catch (err) {
                         console.log(err.response?.data || err.message);
-                        await sock.sendMessage(sock.user.id, { text: "❗ Pastebin upload failed!" });
+                        await sock.sendMessage(`${sock.user.id.split(":")[0]}@s.whatsapp.net`, { text: "❗ Pastebin upload failed!" });
                         return;
                     }
 
                     const pasteId = pasteUrl.split("/").pop();
 
                     // SEND SESSION ID TO USER
-                    const msg = await sock.sendMessage(sock.user.id, {
+                    const msg = await sock.sendMessage(`${sock.user.id.split(":")[0]}@s.whatsapp.net`, {
                         text: `*YOUR SESSION ID*\n\n\`\`\`XPRO~${pasteId}\`\`\`\n\n⚠️ Keep it private!`
                     });
 
                     const caption = `
 🔐 *NEVER SHARE THIS SESSION ID!*
 
-Use this *SESSION_ID* to run your *QUEEN ANJU XPRO BOT*.
+Use this *SESSION_ID* to run your *XPROVerce MD BOT*.
 
 \`\`\`js
 module.exports = {
@@ -111,14 +112,14 @@ module.exports = {
 `;
 
                     await sock.sendMessage(
-                        sock.user.id,
+                        `${sock.user.id.split(":")[0]}@s.whatsapp.net`,
                         {
                             text: caption,
                             contextInfo: {
                                 externalAdReply: {
-                                    title: "QUEEN ANJU XPRO",
-                                    thumbnailUrl: "https://telegra.ph/file/adc46970456c26cad0c15.jpg",
-                                    sourceUrl: "https://whatsapp.com/channel/0029Vaj5XmgFXUubAjlU5642",
+                                    title: "XPROVerce MD",
+                                    thumbnailUrl: "https://i.ibb.co/VWy8DK06/Whats-App-Image-2025-12-09-at-17-38-33-fd4d4ecd.jpg",
+                                    sourceUrl: "https://whatsapp.com/channel/0029VbBbldUJ93wbCIopwf2m",
                                     mediaType: 2,
                                     renderLargerThumbnail: true,
                                     showAdAttribution: true
