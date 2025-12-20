@@ -1,13 +1,13 @@
-FROM node:20-bullseye
-
+FROM node:lts-buster
+  
 WORKDIR /usr/src/app
 
-COPY package.json package-lock.json* ./
+COPY package.json .
 
-RUN npm install --omit=dev
+RUN npm install && npm install -g qrcode-terminal pm2
 
 COPY . .
 
 EXPOSE 5000
 
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
