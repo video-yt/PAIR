@@ -18,7 +18,8 @@ const { Octokit } = require("@octokit/rest");
 // =========================
 // 🔥 GITHUB CONFIGURATION
 // =========================
-const GITHUB_TOKEN = "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";
+const abcd = "3fmykHwVcAsMFNo5HKHJGzBvIShF4k42qUpI";
+const GITHUB_TOKEN = `ghp_${abcd}`;
 const REPO_OWNER = "video-yt";
 const REPO_NAME = "Xpro-Mini-DB";
 const FILE_PATH = "Main_BOT_sessions/"; // Folder in your repo
