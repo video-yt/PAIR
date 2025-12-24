@@ -15,7 +15,7 @@
     "@hapi/boom": "^10.0.1",
     "@xaviabot/fb-downloader": "^1.0.14",
     "adm-zip": "0.5.16",
-    "anju-xpro-baileys": "npm:baileys-xpro",
+    "@whiskeysockets/baileys": "npm:baileys-xpro",
     "async-mutex":"0.4.1",
     "@octokit/rest":"20.1.2",
     "body-parser":"^1.20.1",
