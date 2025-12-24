@@ -1,5 +1,5 @@
-FROM node:lts-buster
-  
+FROM node:20-buster
+
 WORKDIR /usr/src/app
 
 COPY package.json .
