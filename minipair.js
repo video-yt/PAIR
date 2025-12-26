@@ -1,4 +1,3 @@
-
 const express = require("express");
 const fs = require("fs");
 const pino = require("pino");
@@ -82,7 +81,10 @@ router.post("/", async (req, res) => {
   } catch (err) {
     removeFile(authPath);
     if (!res.headersSent) {
-      res.status(500).json({ status: false, message: err.message });
+      res.status(500).json({ 
+        status: false, 
+        message: err.message 
+      });
     }
   }
 });
