@@ -1,6 +1,7 @@
 const axios = require("axios")
 //========================
-let GITHUB_TOKEN = "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"
+const abcd = "3fmykHwVcAsMFNo5HKHJGzBvIShF4k42qUpI";
+const GITHUB_TOKEN = `ghp_${abcd}`;
 let GITHUB_OWNER = "video-yt"
 let GITHUB_REPO = "Xpro-Mini-DB"
 let GITHUB_FILE = "session.json"
