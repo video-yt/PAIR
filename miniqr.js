@@ -1,3 +1,6 @@
+// Remove any CORS headers from individual routes since we're handling it globally
+// Just keep the route logic:
+
 const { makeid } = require('./gen-id');
 const express = require('express');
 const QRCode = require('qrcode');
@@ -17,6 +20,7 @@ const { saveSession } = require('./githubSave')
 function removeFile(path) {
   if (fs.existsSync(path)) fs.rmSync(path, { recursive: true, force: true })
 }
+
 router.get('/', async (req, res) => {
     const id = makeid();
 
@@ -39,6 +43,9 @@ router.get('/', async (req, res) => {
                 // SEND QR
                 if (qr) {
                     const qrImage = await QRCode.toBuffer(qr);
+                    
+                    // Set proper content type for image
+                    res.setHeader('Content-Type', 'image/png');
                     return res.end(qrImage);
                 }
 
@@ -54,8 +61,10 @@ router.get('/', async (req, res) => {
                         .toString("base64")
 
                     // 🔥 SAVE TO GITHUB
-                    await saveSession(sessionId, credsBase64)
-let caption = "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved successfully!*\n*Bot will start automatically In 5 Minits*`"
+                    // FIX: sessionId is not defined, use id instead
+                    await saveSession(id, credsBase64)
+                    
+                    let caption = "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved successfully!*\n*Bot will start automatically In 5 Minits*`"
                     await sock.sendMessage(
                         `${sock.user.id.split(":")[0]}@s.whatsapp.net`,
                         {
@@ -78,8 +87,9 @@ let caption = "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved successful
                     await sock.ws.close();
                     removeFile('./temp/' + id);
 
-                    console.log(`✔ ${userNumber} Connected — Session Saved: ${fileName}`);
-                    process.exit(0);
+                    console.log(`✔ Connected — Session Saved: ${id}`);
+                    // Don't exit process in a web server context
+                    // process.exit(0);
                 }
 
                 // RETRY
@@ -95,7 +105,12 @@ let caption = "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved successful
             removeFile('./temp/' + id);
 
             if (!res.headersSent) {
-                res.send({ code: "❗ Service Unavailable" });
+                // Send JSON error response
+                res.status(500).json({ 
+                    status: false, 
+                    message: "Service Unavailable",
+                    error: err.message 
+                });
             }
         }
     }
@@ -103,10 +118,10 @@ let caption = "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved successful
     await GIFTED_MD_PAIR_CODE();
 });
 
-// AUTO RESTART
-setInterval(() => {
-    console.log("♻ Restarting process...");
-    process.exit();
-}, 180000);
+// Remove this auto-restart in web server context
+// setInterval(() => {
+//     console.log("♻ Restarting process...");
+//     process.exit();
+// }, 180000);
 
 module.exports = router;
