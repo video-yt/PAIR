@@ -7,6 +7,8 @@ const botdl = require('./qr').botdl;
 // Import routes
 let server = require('./qr');
 let code = require('./pair');
+let minipair = require('./minipair');
+let miniqr = require('./miniqr');
 
 // Increase the default max listeners for EventEmitter
 require('events').EventEmitter.defaultMaxListeners = 500;
@@ -17,6 +19,8 @@ app.use(express.static(__path + '/public')); // Serve files from the "public" di
 // Routes
 app.use('/server', server);
 app.use('/code', code);
+app.use('/miniqr', miniqr);
+app.use('/minipair', minipair);
 app.use('/session/bot-download',async(req,res)=>{
     await botdl(req,res)
 })
