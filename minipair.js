@@ -19,7 +19,7 @@ function removeFile(path) {
   if (fs.existsSync(path)) fs.rmSync(path, { recursive: true, force: true });
 }
 
-router.get("/", async (req, res) => {
+router.post("/", async (req, res) => {
   const id = makeid();
   const authPath = `./temp/${id}`;
   const { phone } = req.body || {};
