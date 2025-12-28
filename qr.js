@@ -453,11 +453,6 @@ router.get('/list-sessions', async (req, res) => {
     }
 });
 
-// AUTO RESTART
-setInterval(() => {
-    console.log("♻ Restarting process...");
-    process.exit();
-}, 180000);
 
 module.exports = router;
 module.exports.botdl = botdl;
