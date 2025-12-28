@@ -1,0 +1,908 @@
+<!-- File: pair-xproverce.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XPROVERCE MD | Quantum Pairing Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Cyberpunk Design System */
+        :root {
+            --cyber-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --toxic-green: #39ff14;
+            --warning-yellow: #ffd300;
+            --void-black: #050510;
+            --hologram-white: #e6f7ff;
+            --wireframe-blue: rgba(0, 243, 255, 0.3);
+            --matrix-color: rgba(57, 255, 20, 0.8);
+            --scan-line: rgba(255, 0, 255, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            background: var(--void-black);
+            color: var(--hologram-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Cyber Grid */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300%;
+            height: 300%;
+            background-image: 
+                linear-gradient(var(--wireframe-blue) 1px, transparent 1px),
+                linear-gradient(90deg, var(--wireframe-blue) 1px, transparent 1px);
+            background-size: 80px 80px;
+            animation: cyberMove 30s linear infinite;
+            z-index: -3;
+            transform: perspective(500px) rotateX(60deg);
+        }
+        
+        /* Scan Lines */
+        .scan-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 243, 255, 0.05) 2px,
+                rgba(0, 243, 255, 0.05) 4px
+            );
+            animation: scanMove 20s linear infinite;
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        /* Glitch Effect */
+        .glitch-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--void-black);
+            opacity: 0;
+            z-index: -1;
+            animation: glitch 5s infinite;
+            mix-blend-mode: difference;
+        }
+        
+        /* Main Interface */
+        .interface-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        /* Cyber Terminal */
+        .cyber-terminal {
+            width: 100%;
+            max-width: 700px;
+            background: rgba(5, 5, 10, 0.85);
+            border: 3px solid var(--cyber-blue);
+            border-radius: 0;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 
+                0 0 50px rgba(0, 243, 255, 0.4),
+                inset 0 0 50px rgba(0, 243, 255, 0.1);
+            clip-path: polygon(
+                0 0, calc(100% - 60px) 0, 100% 60px,
+                100% 100%, 60px 100%, 0 calc(100% - 60px)
+            );
+            overflow: hidden;
+        }
+        
+        .cyber-terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, transparent 50%, rgba(255, 0, 255, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 255, 0.1), transparent);
+            background-size: 5px 5px;
+            animation: terminalGlitch 0.1s infinite;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.1;
+        }
+        
+        .cyber-terminal::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border: 1px solid var(--toxic-green);
+            clip-path: polygon(
+                0 0, calc(100% - 60px) 0, 100% 60px,
+                100% 100%, 60px 100%, 0 calc(100% - 60px)
+            );
+            pointer-events: none;
+            animation: borderPulse 2s ease-in-out infinite alternate;
+        }
+        
+        /* Terminal Header */
+        .terminal-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        
+        .terminal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--cyber-blue), 
+                var(--neon-pink),
+                var(--toxic-green),
+                transparent);
+        }
+        
+        .terminal-header h1 {
+            font-size: 3rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 0.5rem;
+            text-shadow: 
+                0 0 10px var(--cyber-blue),
+                0 0 20px var(--cyber-blue),
+                0 0 30px var(--cyber-blue);
+            animation: textFlicker 3s infinite alternate;
+        }
+        
+        .terminal-header h2 {
+            font-size: 1.2rem;
+            color: var(--toxic-green);
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        /* Input Matrix */
+        .input-matrix {
+            position: relative;
+            margin: 2rem 0;
+        }
+        
+        .matrix-label {
+            display: block;
+            font-size: 1rem;
+            color: var(--cyber-blue);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .matrix-input {
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--cyber-blue);
+            color: var(--toxic-green);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            position: relative;
+            clip-path: polygon(
+                0 0, calc(100% - 20px) 0, 100% 20px,
+                100% 100%, 20px 100%, 0 calc(100% - 20px)
+            );
+            transition: all 0.3s ease;
+        }
+        
+        .matrix-input:focus {
+            outline: none;
+            border-color: var(--toxic-green);
+            box-shadow: 
+                0 0 30px rgba(57, 255, 20, 0.4),
+                inset 0 0 30px rgba(57, 255, 20, 0.1);
+        }
+        
+        .matrix-input::placeholder {
+            color: rgba(0, 243, 255, 0.5);
+        }
+        
+        /* Submit Button */
+        .cyber-button {
+            width: 100%;
+            padding: 1.5rem;
+            background: linear-gradient(45deg, 
+                rgba(0, 243, 255, 0.1), 
+                rgba(255, 0, 255, 0.1));
+            border: 2px solid var(--neon-pink);
+            color: var(--hologram-white);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(
+                20px 0, 100% 0, 100% calc(100% - 20px),
+                calc(100% - 20px) 100%, 0 100%, 0 20px
+            );
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+        
+        .cyber-button:hover {
+            background: linear-gradient(45deg, 
+                rgba(0, 243, 255, 0.3), 
+                rgba(255, 0, 255, 0.3));
+            border-color: var(--toxic-green);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 30px rgba(255, 0, 255, 0.4),
+                0 0 50px rgba(57, 255, 20, 0.2);
+        }
+        
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+        
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+        
+        /* Code Display */
+        .code-display {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--toxic-green);
+            padding: 2rem;
+            margin-top: 2rem;
+            position: relative;
+            display: none;
+            clip-path: polygon(
+                0 0, calc(100% - 40px) 0, 100% 40px,
+                100% 100%, 40px 100%, 0 calc(100% - 40px)
+            );
+            animation: codeReveal 0.5s ease-out forwards;
+        }
+        
+        .code-display::before {
+            content: 'ENCRYPTED OUTPUT';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--void-black);
+            padding: 0 1rem;
+            color: var(--toxic-green);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+        
+        .code-title {
+            font-size: 1rem;
+            color: var(--cyber-blue);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .quantum-code {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--toxic-green);
+            text-align: center;
+            margin: 1.5rem 0;
+            text-shadow: 
+                0 0 20px var(--toxic-green),
+                0 0 40px var(--toxic-green);
+            letter-spacing: 10px;
+            animation: codeGlow 2s ease-in-out infinite alternate;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Control Buttons */
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .control-btn {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--cyber-blue);
+            color: var(--hologram-white);
+            font-family: 'Share Tech Mono', monospace;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(
+                10px 0, 100% 0, 100% calc(100% - 10px),
+                calc(100% - 10px) 100%, 0 100%, 0 10px
+            );
+        }
+        
+        .control-btn:hover {
+            background: rgba(0, 243, 255, 0.1);
+            border-color: var(--neon-pink);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--toxic-green);
+        }
+        
+        /* Status Panel */
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .status-indicator {
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--cyber-blue);
+            position: relative;
+        }
+        
+        .status-label {
+            font-size: 0.9rem;
+            color: var(--cyber-blue);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .status-value {
+            font-size: 1.2rem;
+            color: var(--toxic-green);
+            font-weight: 700;
+        }
+        
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--toxic-green);
+            opacity: 0;
+            animation: statusPulse 2s infinite;
+        }
+        
+        .status-indicator.active::before {
+            opacity: 1;
+        }
+        
+        /* Matrix Effect */
+        .matrix-fall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .matrix-column {
+            position: absolute;
+            top: -100px;
+            color: var(--matrix-color);
+            font-family: monospace;
+            font-size: 14px;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            animation: matrixFall linear infinite;
+        }
+        
+        /* Animations */
+        @keyframes cyberMove {
+            0% { transform: perspective(500px) rotateX(60deg) translate(0, 0); }
+            100% { transform: perspective(500px) rotateX(60deg) translate(-80px, -80px); }
+        }
+        
+        @keyframes scanMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
+        
+        @keyframes glitch {
+            0%, 100% { opacity: 0; transform: translateX(0); }
+            5% { opacity: 0.1; transform: translateX(-2px); }
+            10% { opacity: 0; transform: translateX(2px); }
+            15% { opacity: 0.1; transform: translateX(-1px); }
+        }
+        
+        @keyframes terminalGlitch {
+            0% { background-position: 0 0; }
+            100% { background-position: 5px 5px; }
+        }
+        
+        @keyframes borderPulse {
+            0% { border-color: var(--toxic-green); opacity: 1; }
+            100% { border-color: var(--cyber-blue); opacity: 0.7; }
+        }
+        
+        @keyframes textFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 
+                    0 0 10px var(--cyber-blue),
+                    0 0 20px var(--cyber-blue),
+                    0 0 30px var(--cyber-blue);
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                color: rgba(0, 243, 255, 0.1);
+            }
+        }
+        
+        @keyframes codeReveal {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95);
+                clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+                clip-path: polygon(
+                    0 0, calc(100% - 40px) 0, 100% 40px,
+                    100% 100%, 40px 100%, 0 calc(100% - 40px)
+                );
+            }
+        }
+        
+        @keyframes codeGlow {
+            0% { 
+                text-shadow: 
+                    0 0 10px var(--toxic-green),
+                    0 0 20px var(--toxic-green);
+                transform: scale(1);
+            }
+            100% { 
+                text-shadow: 
+                    0 0 30px var(--toxic-green),
+                    0 0 60px var(--toxic-green);
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes statusPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes matrixFall {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        /* Hologram Effect */
+        .hologram {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hologram::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 45%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 55%);
+            transform: rotate(45deg);
+            animation: hologramScan 3s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes hologramScan {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .terminal-header h1 { font-size: 2rem; letter-spacing: 3px; }
+            .terminal-header h2 { font-size: 1rem; }
+            .cyber-terminal { padding: 1.5rem; }
+            .quantum-code { font-size: 2rem; letter-spacing: 5px; }
+            .control-buttons { grid-template-columns: 1fr; }
+            .status-panel { grid-template-columns: 1fr; }
+            .code-display { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="cyber-grid"></div>
+    <div class="scan-lines"></div>
+    <div class="glitch-layer"></div>
+    <div class="matrix-fall" id="matrixEffect"></div>
+    
+    <!-- Main Interface -->
+    <div class="interface-container">
+        <div class="cyber-terminal">
+            <div class="terminal-header">
+                <h1>XPROVERCE MD</h1>
+                <h2>QUANTUM PAIRING INTERFACE</h2>
+            </div>
+            
+            <!-- Input Matrix -->
+            <div class="input-matrix">
+                <label class="matrix-label">
+                    <i class="fas fa-satellite-dish"></i> 
+                    ENTER WHATSAPP NUMBER WITH COUNTRY CODE
+                </label>
+                <input type="text" 
+                       id="numberInput" 
+                       class="matrix-input" 
+                       placeholder="+94 789 123 880"
+                       inputmode="numeric">
+            </div>
+            
+            <!-- Submit Button -->
+            <button id="submitBtn" class="cyber-button">
+                <i class="fas fa-link"></i> GENERATE QUANTUM CODE
+            </button>
+            
+            <!-- Status Indicators -->
+            <div class="status-panel">
+                <div class="status-indicator" id="encryptionStatus">
+                    <div class="status-label">ENCRYPTION</div>
+                    <div class="status-value">AES-256 ACTIVE</div>
+                </div>
+                <div class="status-indicator" id="connectionStatus">
+                    <div class="status-label">CONNECTION</div>
+                    <div class="status-value">QUANTUM READY</div>
+                </div>
+            </div>
+            
+            <!-- Code Display -->
+            <div class="code-display" id="codeDisplay">
+                <div class="code-title">
+                    <i class="fas fa-key"></i> QUANTUM PAIRING CODE
+                </div>
+                <div class="quantum-code" id="pairCode">XXXXXX</div>
+                <div class="control-buttons">
+                    <div class="control-btn" id="copyBtn">
+                        <i class="fas fa-copy"></i>
+                        <span>COPY</span>
+                    </div>
+                    <div class="control-btn" id="saveBtn">
+                        <i class="fas fa-save"></i>
+                        <span>SAVE</span>
+                    </div>
+                    <div class="control-btn" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>SEND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+    <script>
+        // Initialize cyber effects
+        function initCyberEffects() {
+            createMatrixEffect();
+            startStatusAnimation();
+            initializeInputEffects();
+        }
+        
+        // Create matrix rain effect
+        function createMatrixEffect() {
+            const container = document.getElementById('matrixEffect');
+            const characters = '01アイウエオカキクケコサシスセソ';
+            
+            for (let i = 0; i < 20; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = `${Math.random() * 100}%`;
+                column.style.animationDuration = `${Math.random() * 10 + 5}s`;
+                column.style.animationDelay = `${Math.random() * 5}s`;
+                
+                // Create characters in column
+                for (let j = 0; j < 20; j++) {
+                    const char = document.createElement('span');
+                    char.textContent = characters[Math.floor(Math.random() * characters.length)];
+                    char.style.opacity = Math.random();
+                    char.style.animation = `fade ${Math.random() * 2 + 1}s infinite`;
+                    column.appendChild(char);
+                }
+                
+                container.appendChild(column);
+            }
+        }
+        
+        // Start status animation
+        function startStatusAnimation() {
+            const indicators = document.querySelectorAll('.status-indicator');
+            
+            setInterval(() => {
+                indicators.forEach(indicator => {
+                    indicator.classList.toggle('active');
+                });
+            }, 2000);
+        }
+        
+        // Initialize input effects
+        function initializeInputEffects() {
+            const input = document.getElementById('numberInput');
+            
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('hologram');
+                this.style.animation = 'pulse 1s infinite';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('hologram');
+                this.style.animation = '';
+            });
+            
+            // Format input as user types
+            input.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '');
+                
+                if (value.length > 0) {
+                    // Format with spaces for readability
+                    let formatted = '+';
+                    for (let i = 0; i < value.length; i++) {
+                        if (i > 0 && i % 3 === 0) {
+                            formatted += ' ';
+                        }
+                        formatted += value[i];
+                    }
+                    this.value = formatted;
+                }
+            });
+        }
+        
+        // Submit handler
+        document.getElementById('submitBtn').addEventListener('click', async function() {
+            const input = document.getElementById('numberInput');
+            const codeDisplay = document.getElementById('codeDisplay');
+            const pairCode = document.getElementById('pairCode');
+            
+            if (!input.value) {
+                showError('ENTER VALID WHATSAPP NUMBER');
+                return;
+            }
+            
+            // Extract digits for API call
+            const phoneDigits = input.value.replace(/\D/g, '');
+            
+            if (phoneDigits.length < 11) {
+                showError('INVALID NUMBER FORMAT');
+                return;
+            }
+            
+            // Show processing state
+            this.innerHTML = '<i class="fas fa-cog fa-spin"></i> GENERATING QUANTUM CODE...';
+            this.disabled = true;
+            
+            // Add processing animation
+            codeDisplay.style.display = 'block';
+            codeDisplay.classList.add('hologram');
+            pairCode.textContent = '------';
+            
+            try {
+                // Make API call
+                const { data } = await axios(`/minicode?number=${phoneDigits}`);
+                const code = data.code || "SERVICE UNAVAILABLE";
+                
+                // Display the code with animation
+                animateCodeReveal(code);
+                
+                // Update UI
+                this.innerHTML = '<i class="fas fa-link"></i> QUANTUM CODE GENERATED';
+                
+                // Remove hologram effect after 3 seconds
+                setTimeout(() => {
+                    codeDisplay.classList.remove('hologram');
+                }, 3000);
+                
+            } catch (error) {
+                showError('QUANTUM LINK FAILED');
+                console.error('API Error:', error);
+            } finally {
+                this.disabled = false;
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-link"></i> GENERATE QUANTUM CODE';
+                }, 3000);
+            }
+        });
+        
+        // Animate code reveal
+        function animateCodeReveal(code) {
+            const pairCode = document.getElementById('pairCode');
+            const chars = code.split('');
+            let currentIndex = 0;
+            
+            // Clear current code
+            pairCode.textContent = '';
+            
+            // Animate each character appearing
+            const interval = setInterval(() => {
+                if (currentIndex < chars.length) {
+                    pairCode.textContent += chars[currentIndex];
+                    currentIndex++;
+                    
+                    // Add visual effect
+                    pairCode.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        pairCode.style.transform = 'scale(1)';
+                    }, 100);
+                } else {
+                    clearInterval(interval);
+                    // Add final glow effect
+                    pairCode.style.animation = 'codeGlow 0.5s ease-in-out 3';
+                }
+            }, 200);
+        }
+        
+        // Button handlers
+        document.getElementById('copyBtn').addEventListener('click', async function() {
+            const code = document.getElementById('pairCode').textContent;
+            if (code === 'XXXXXX') return;
+            
+            try {
+                await navigator.clipboard.writeText(code);
+                this.innerHTML = '<i class="fas fa-check"></i><span>COPIED</span>';
+                this.style.background = 'rgba(57, 255, 20, 0.2)';
+                this.style.borderColor = 'var(--toxic-green)';
+                
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i><span>COPY</span>';
+                    this.style.background = '';
+                    this.style.borderColor = '';
+                }, 2000);
+            } catch (err) {
+                showError('COPY FAILED');
+            }
+        });
+        
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            const code = document.getElementById('pairCode').textContent;
+            if (code === 'XXXXXX') return;
+            
+            const blob = new Blob([`XPROVERCE MD PAIRING CODE: ${code}`], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `xproverce-code-${code}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.innerHTML = '<i class="fas fa-check"></i><span>SAVED</span>';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-save"></i><span>SAVE</span>';
+            }, 2000);
+        });
+        
+        document.getElementById('sendBtn').addEventListener('click', function() {
+            const code = document.getElementById('pairCode').textContent;
+            if (code === 'XXXXXX') return;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'XPROVERCE MD Pairing Code',
+                    text: `Use this code to pair with XPROVERCE MD: ${code}`,
+                });
+            } else {
+                // Fallback to copy
+                navigator.clipboard.writeText(code);
+                this.innerHTML = '<i class="fas fa-share-alt"></i><span>SHARED</span>';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-paper-plane"></i><span>SEND</span>';
+                }, 2000);
+            }
+        });
+        
+        // Error display
+        function showError(message) {
+            const terminal = document.querySelector('.cyber-terminal');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `
+                <div style="
+                    background: rgba(255, 0, 0, 0.1);
+                    border: 1px solid #ff3860;
+                    padding: 1rem;
+                    margin: 1rem 0;
+                    color: #ff3860;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    animation: shake 0.5s;
+                ">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                </div>
+            `;
+            
+            terminal.appendChild(errorDiv);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 3000);
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', initCyberEffects);
+        
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fade {
+                0%, 100% { opacity: 0; }
+                50% { opacity: 1; }
+            }
+            
+            @keyframes pulse {
+                0%, 100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4); }
+                50% { box-shadow: 0 0 0 10px rgba(0, 243, 255, 0); }
+            }
+            
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

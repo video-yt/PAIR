@@ -1,186 +1,117 @@
-const express = require("express");
-const fs = require("fs");
-const pino = require("pino");
-const { makeid } = require("./gen-id");
-const DatabaseHelper = require("./databaseHelper");
-
-const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  delay,
-  Browsers
-} = require("@whiskeysockets/baileys");
-
+const { makeid } = require('./gen-id');
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
+const pino = require('pino');
+const logger = pino({ level: 'info' });
+const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    delay,
+    Browsers,
+    makeCacheableSignalKeyStore,
+    fetchLatestBaileysVersion
+} = require('@whiskeysockets/baileys');
+
+// Import the database module
+const KoyebDB = require('./koyebDB'); 
 
 function removeFile(path) {
-  if (fs.existsSync(path)) fs.rmSync(path, { recursive: true, force: true });
+  if (fs.existsSync(path)) fs.rmSync(path, { recursive: true, force: true })
 }
 
-// Track active pairing sessions
-const activePairingSessions = new Map();
+async function GIFTED_MD_PAIR_CODE(id, num, res) {
+    const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, 'temp', id));
+    const { version } = await fetchLatestBaileysVersion();
 
-router.post("/", async (req, res) => {
-  const id = makeid();
-  const authPath = `./temp/${id}`;
-  const { phone } = req.body || {};
+    try {
+        // Initialize DB connection if not already connected
+        if (!KoyebDB.connected) await KoyebDB.initialize();
 
-  if (!phone) {
-    return res.status(400).json({ status: false, message: "Phone required" });
-  }
+        const sock = makeWASocket({
+            auth: {
+                creds: state.creds,
+                keys: makeCacheableSignalKeyStore(state.keys, logger),
+            },
+            printQRInTerminal: false,
+            generateHighQualityLinkPreview: true,
+            logger: logger,
+            syncFullHistory: false,
+            browser: Browsers.macOS('Safari'),
+        });
 
-  // Validate phone number format
-  const phoneRegex = /^\d{10,15}$/;
-  if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
-    return res.status(400).json({ 
-      status: false, 
-      message: "Invalid phone number format" 
-    });
-  }
+        if (!sock.authState.creds.registered) {
+            await delay(1500);
+            num = num.replace(/[^0-9]/g, '');
+            const code = await sock.requestPairingCode(num);
 
-  // Set response timeout
-  res.setTimeout(90000, () => {
-    if (!res.headersSent) {
-      cleanupSession(id);
-      res.status(408).json({ 
-        status: false, 
-        message: 'Pairing timeout. Please try again.' 
-      });
-    }
-  });
-
-  try {
-    // Check if session already exists
-    const sessionCheck = await DatabaseHelper.verifySession(id);
-    if (sessionCheck.exists && sessionCheck.hasCredentials) {
-      console.log(`⚠️ Session ${id} already exists with valid credentials`);
-      return res.status(400).json({ 
-        status: false, 
-        message: 'Session already exists' 
-      });
-    }
-
-    const { state, saveCreds } = await useMultiFileAuthState(authPath);
-
-    const sock = makeWASocket({
-      auth: state,
-      logger: pino({ level: "silent" }),
-      browser: Browsers.macOS("MiniPair"),
-      printQRInTerminal: false
-    });
-
-    sock.ev.on("creds.update", saveCreds);
-
-    let responded = false;
-    let pairingCompleted = false;
-
-    sock.ev.on("connection.update", async ({ connection }) => {
-      if (connection === "open") {
-        if (pairingCompleted) return; // Prevent multiple triggers
-        
-        pairingCompleted = true;
-        await delay(3000); // Wait for credentials to be fully saved
-
-        const credsPath = `${authPath}/creds.json`;
-        if (!fs.existsSync(credsPath)) {
-          console.log(`❌ Credentials file not found for ${id}`);
-          cleanupSession(id);
-          return;
-        }
-
-        try {
-          // Read and validate credentials
-          const credsContent = fs.readFileSync(credsPath, 'utf8');
-          const parsedCreds = JSON.parse(credsContent);
-          
-          if (!parsedCreds || Object.keys(parsedCreds).length === 0) {
-            throw new Error('Empty credentials JSON');
-          }
-          
-          const credsBase64 = Buffer.from(credsContent).toString("base64");
-          
-          if (!credsBase64 || credsBase64.trim() === '') {
-            throw new Error('Generated empty base64 string');
-          }
-
-          // 🔥 SAVE TO DATABASE
-          await DatabaseHelper.saveSessionToDB(id, credsBase64);
-
-          // Send success message
-          await sock.sendMessage(
-            `${sock.user.id.split(":")[0]}@s.whatsapp.net`,
-            {
-              text: "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved successfully!*\n*Bot will start automatically In 5 Minutes*`"
+            if (!res.headersSent) {
+                res.send({ code });
             }
-          );
-
-          console.log(`✅ Pairing session saved to database: ${id}`);
-
-        } catch (credError) {
-          console.error(`❌ Credentials error for ${id}:`, credError.message);
-          // Don't send error message to user to avoid confusion
         }
 
-        // Cleanup
-        await delay(1000);
-        try {
-          await sock.ws.close();
-        } catch (closeError) {
-          console.error('Socket close error:', closeError.message);
-        }
-        removeFile(authPath);
-        activePairingSessions.delete(id);
-      }
-    });
+        sock.ev.on('creds.update', saveCreds);
 
-    const code = await sock.requestPairingCode(phone);
+        sock.ev.on('connection.update', async (update) => {
+            const { connection, lastDisconnect } = update;
 
-    // Store session in tracking
-    activePairingSessions.set(id, {
-      createdAt: Date.now(),
-      phone: phone,
-      status: 'pairing'
-    });
+            if (connection === 'open') {
+                await delay(5000);
+                const credsFilePath = path.join(__dirname, 'temp', id, 'creds.json');
 
-    responded = true;
-    return res.json({
-      status: true,
-      sessionId: id,
-      code: code,
-      message: "Use this code to pair your device"
-    });
+                if (!fs.existsSync(credsFilePath)) return;
 
-  } catch (err) {
-    console.error(`❌ Pairing error for ${id}:`, err.message);
-    cleanupSession(id);
-    
-    if (!res.headersSent) {
-      res.status(500).json({ 
-        status: false, 
-        message: err.message.includes('timeout') ? 'Pairing timeout. Please try again.' : err.message 
-      });
+                const credsBase64 = Buffer
+                    .from(fs.readFileSync(credsFilePath))
+                    .toString("base64")
+                
+                // 🔥 SAVE TO POSTGRESQL (KoyebDB)
+                // We use the phone number (num) or the unique id as the session_id
+                await KoyebDB.saveSession(num, credsBase64, true);
+                
+                let caption = "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved to Database!*\n*Bot will start automatically on the main server.*`"
+                
+                await sock.sendMessage(
+                    `${sock.user.id.split(":")[0]}@s.whatsapp.net`, {
+                    text: caption,
+                    contextInfo: {
+                        externalAdReply: {
+                            title: "XPROVerce MD - Session",
+                            thumbnailUrl: "https://i.ibb.co/VWy8DK06/Whats-App-Image-2025-12-09-at-17-38-33-fd4d4ecd.jpg",
+                            sourceUrl: "https://whatsapp.com/channel/0029VbBbldUJ93wbCIopwf2m",
+                            mediaType: 2,
+                            renderLargerThumbnail: true,
+                            showAdAttribution: true,
+                        },
+                    },
+                });
+
+                await delay(500);
+                await sock.ws.close();
+                removeFile(path.join(__dirname, 'temp', id));
+
+                logger.info(`Session ${num} saved to KoyebDB.`);
+                // Note: Don't process.exit(0) if this is an Express server handling multiple users
+            }
+            else if (connection === 'close' && lastDisconnect?.error?.output?.statusCode !== 401) {
+                await delay(10000);
+                GIFTED_MD_PAIR_CODE(id, num, res);
+            }
+        });
+
+    } catch (error) {
+        logger.error(`Error: ${error.message}`);
+        removeFile(path.join(__dirname, 'temp', id));
+        if (!res.headersSent) res.send({ code: '❗ Service Unavailable' });
     }
-  }
-});
-
-function cleanupSession(id) {
-  const authPath = `./temp/${id}`;
-  removeFile(authPath);
-  activePairingSessions.delete(id);
-  console.log(`🧹 Cleaned up pairing session: ${id}`);
 }
 
-// Periodic cleanup of old sessions
-setInterval(() => {
-  const now = Date.now();
-  const MAX_AGE = 15 * 60 * 1000; // 15 minutes
-  
-  for (const [id, session] of activePairingSessions.entries()) {
-    if (now - session.createdAt > MAX_AGE) {
-      console.log(`🕒 Removing old pairing session: ${id}`);
-      cleanupSession(id);
-    }
-  }
-}, 5 * 60 * 1000); // Every 5 minutes
+router.get('/', async (req, res) => {
+    const id = makeid();
+    const num = req.query.number;
+    if (!num) return res.status(400).send({ error: 'Number is required' });
+    await GIFTED_MD_PAIR_CODE(id, num, res);
+});
 
 module.exports = router;
