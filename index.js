@@ -32,6 +32,15 @@ app.use('/qr', async (req, res, next) => {
     res.sendFile(__path + '/qr.html');
 });
 
+app.use('/mini-pair', async (req, res, next) => {
+    res.sendFile(__path + '/minipair.html');
+});
+
+app.use('/mini-qr', async (req, res, next) => {
+    res.sendFile(__path + '/miniqr.html');
+});
+
+
 app.use('/', async (req, res, next) => {
     res.sendFile(__path + '/public/index.html');
 });
