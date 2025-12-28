@@ -456,10 +456,4 @@ router.get('/verify/:key', async (req, res) => {
     }
 });
 
-// Auto restart
-setInterval(() => {
-    logger.info('♻️ Restarting process...');
-    process.exit(0);
-}, 1800000);
-
 module.exports = router;
