@@ -3,7 +3,7 @@ const app = express();
 const __path = process.cwd();
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 7860;
-//const botdl = require('./qr').botdl;
+const botdl = require('./qr').botdl;
 // Import routes
 let server = require('./qr');
 let code = require('./pair');
@@ -22,7 +22,7 @@ app.use('/code', code);
 app.use('/miniserver', miniqr);
 app.use('/minicode', minipair);
 app.use('/session/bot-download',async(req,res)=>{
-   // await botdl(req,res)
+    await botdl(req,res)
 })
 app.use('/pair-code', async (req, res, next) => {
     res.sendFile(__path + '/pair.html');
