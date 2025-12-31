@@ -25,6 +25,11 @@ async function GIFTED_MD_PAIR_CODE(id, num, res) {
     const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, 'temp', id));
     const { version } = await fetchLatestBaileysVersion();
 
+    // Track if session has been saved to prevent reconnection attempts
+    let sessionSaved = false;
+    // Track if we've already sent a response
+    let responseSent = false;
+
     try {
         // Initialize DB connection if not already connected
         if (!KoyebDB.connected) await KoyebDB.initialize();
@@ -46,8 +51,11 @@ async function GIFTED_MD_PAIR_CODE(id, num, res) {
             num = num.replace(/[^0-9]/g, '');
             const code = await sock.requestPairingCode(num);
 
-            if (!res.headersSent) {
-                res.send({ code });
+            if (!responseSent) {
+                responseSent = true;
+                if (!res.headersSent) {
+                    res.send({ code });
+                }
             }
         }
 
@@ -58,6 +66,10 @@ async function GIFTED_MD_PAIR_CODE(id, num, res) {
 
             if (connection === 'open') {
                 await delay(5000);
+                
+                // If session already saved, don't save again
+                if (sessionSaved) return;
+                
                 const credsFilePath = path.join(__dirname, 'temp', id, 'creds.json');
 
                 if (!fs.existsSync(credsFilePath)) return;
@@ -69,6 +81,9 @@ async function GIFTED_MD_PAIR_CODE(id, num, res) {
                 // 🔥 SAVE TO POSTGRESQL (KoyebDB)
                 // We use the phone number (num) or the unique id as the session_id
                 await KoyebDB.saveSession(num, credsBase64, true);
+                
+                // Mark session as saved
+                sessionSaved = true;
                 
                 let caption = "`> [ X P R O V E R C E   M I N I ]\n*✅ Session saved to Database!*\n*Bot will start automatically on the main server.*`"
                 
@@ -95,15 +110,24 @@ async function GIFTED_MD_PAIR_CODE(id, num, res) {
                 // Note: Don't process.exit(0) if this is an Express server handling multiple users
             }
             else if (connection === 'close' && lastDisconnect?.error?.output?.statusCode !== 401) {
-                await delay(10000);
-                GIFTED_MD_PAIR_CODE(id, num, res);
+                // Only attempt to reconnect if session hasn't been saved yet
+                if (!sessionSaved) {
+                    await delay(10000);
+                    logger.info(`Attempting to reconnect for ${num}...`);
+                    GIFTED_MD_PAIR_CODE(id, num, res);
+                } else {
+                    logger.info(`Session ${num} already saved, not reconnecting.`);
+                }
             }
         });
 
     } catch (error) {
         logger.error(`Error: ${error.message}`);
         removeFile(path.join(__dirname, 'temp', id));
-        if (!res.headersSent) res.send({ code: '❗ Service Unavailable' });
+        if (!responseSent && !res.headersSent) {
+            responseSent = true;
+            res.send({ code: '❗ Service Unavailable' });
+        }
     }
 }
 
