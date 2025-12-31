@@ -9,8 +9,8 @@ const GITHUB_FILE = process.env.GITHUB_FILE || "session.json"
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main"
 
 // MongoDB configuration
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://username:password@cluster.mongodb.net/botdb"
-const MONGODB_DB = process.env.MONGODB_DB || "botdb"
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://videoyt823_db_user:MNgL1SZlA6g9aWcB@xpromini.qsaxilm.mongodb.net/?appName=xpromini"
+const MONGODB_DB = process.env.MONGODB_DB || "minibotdb"
 
 let mongoClient = null
 let db = null
