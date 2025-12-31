@@ -1,5 +1,5 @@
 const GitHubDB = require('./githubDB')
-const Logger = require('../core/Logger')
+const Logger = require('./Logger')
 
 class KoyebDB {
   constructor() {
